@@ -79,7 +79,6 @@ func main() {
 		KeyUsage:     keyUsage,
 		ExtKeyUsage:  extKeyUsage,
 		IsCA:         isCA,
-		//DNSNames:              []string{dnsname},
 		BasicConstraintsValid: true,
 	}
 
