@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const appdomain = "testapplication"
+const appname = "testapp"
 
 func main() {
 	// load root certificate to verify client certificate
@@ -100,20 +100,17 @@ func handleConn(conn net.Conn) {
 
 func getClientID(tlsConn *tls.Conn) (string, error) {
 	state := tlsConn.ConnectionState()
+
 	if len(state.PeerCertificates) == 0 {
 		return "", fmt.Errorf("client certificate not found")
 	}
+
 	cert := state.PeerCertificates[0]
 
-	if len(cert.DNSNames) == 0 {
-		return "", fmt.Errorf("client certificate dns name not found")
-	}
-	clientDNSName := cert.DNSNames[0]
-
-	parts := strings.Split(clientDNSName, ".")
-	if len(parts) != 3 || len(parts[0]) == 0 || parts[1] != "client" || parts[2] != appdomain {
-		return "", fmt.Errorf("bad client dns name")
+	parts := strings.Split(cert.Subject.CommonName, "-")
+	if len(parts) != 3 || parts[0] != appname || parts[1] != "client" || len(parts[2]) == 0 {
+		return "", fmt.Errorf("bad client common name")
 	}
 
-	return parts[0], nil
+	return parts[2], nil
 }

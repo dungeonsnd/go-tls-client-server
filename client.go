@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-const appdomain = "testapplication"
+const appname = "testapp"
 
 func main() {
 	// load root certificate to verify server certificate
@@ -22,14 +22,14 @@ func main() {
 	}
 
 	// load client certificate
-	cert, err := tls.LoadX509KeyPair("client_12345_cert.pem", "client_12345_key.pem")
+	cert, err := tls.LoadX509KeyPair("client_1_cert.pem", "client_1_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load client tls certificate: %s", err)
 	}
 
 	config := tls.Config{
 		RootCAs:      roots,
-		ServerName:   "server." + appdomain,
+		ServerName:   appname + "-server",
 		Certificates: []tls.Certificate{cert},
 	}
 
@@ -38,9 +38,6 @@ func main() {
 		log.Fatalf("error: dial: %s", err)
 	}
 	defer conn.Close()
-
-	state := conn.ConnectionState()
-	log.Printf("handshake: %v", state.HandshakeComplete)
 
 	message := "hello-goodbye"
 	log.Printf("sending: %s", message)

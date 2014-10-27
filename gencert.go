@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const appdomain = "testapplication"
+const appname = "testapp"
 
 var (
 	certtype = flag.String("type", "", "certificate type: root, server or client")
@@ -48,23 +48,23 @@ func main() {
 
 	var extKeyUsage []x509.ExtKeyUsage
 	var isCA bool
-	var dnsname string
+	var commonName string
 	var keyUsage x509.KeyUsage
 
 	if *certtype == "root" {
 		extKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}
 		isCA = true
-		dnsname = "root." + appdomain
+		commonName = appname + "-root"
 		keyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign
-	} else if *certtype == "client" {
-		extKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}
-		isCA = false
-		dnsname = *clientID + ".client." + appdomain
-		keyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
 	} else if *certtype == "server" {
 		extKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}
 		isCA = false
-		dnsname = "server." + appdomain
+		commonName = appname + "-server"
+		keyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
+	} else if *certtype == "client" {
+		extKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}
+		isCA = false
+		commonName = appname + "-client-" + *clientID
 		keyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
 	}
 
@@ -72,14 +72,14 @@ func main() {
 	var rootKey interface{}
 
 	template := x509.Certificate{
-		SerialNumber:          serialNumber,
-		Subject:               pkix.Name{},
-		NotBefore:             notBefore,
-		NotAfter:              notAfter,
-		KeyUsage:              keyUsage,
-		ExtKeyUsage:           extKeyUsage,
-		IsCA:                  isCA,
-		DNSNames:              []string{dnsname},
+		SerialNumber: serialNumber,
+		Subject:      pkix.Name{CommonName: commonName},
+		NotBefore:    notBefore,
+		NotAfter:     notAfter,
+		KeyUsage:     keyUsage,
+		ExtKeyUsage:  extKeyUsage,
+		IsCA:         isCA,
+		//DNSNames:              []string{dnsname},
 		BasicConstraintsValid: true,
 	}
 
@@ -153,5 +153,5 @@ func main() {
 	keyOut.Close()
 	log.Println("private key:", keyfn)
 
-	log.Println("dnsname: ", dnsname)
+	log.Println("common name:", commonName)
 }
