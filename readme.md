@@ -20,7 +20,7 @@ $ go run gencert.go -type server
 
 Generate client certificate signed by root certificate:
 ```
-$ go run gencert.go -type client -client-id=12345
+$ go run gencert.go -type client -client-id=1
 2014/10/28 00:20:10 loading root_cert.pem and root_key.pem
 2014/10/28 00:20:10 certificate: client_1_cert.pem
 2014/10/28 00:20:10 private key: client_1_key.pem
